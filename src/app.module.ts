@@ -6,7 +6,13 @@ import { HitsModule } from './modules/hits/hits.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule, HitsModule],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
+    UsersModule,
+    HitsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
