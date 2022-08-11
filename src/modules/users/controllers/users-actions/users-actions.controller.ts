@@ -5,6 +5,7 @@ import {
   Body,
   UseGuards,
   SetMetadata,
+  Post,
 } from '@nestjs/common';
 import { RolesGuard } from 'src/middleware/guards/roles.guard';
 
@@ -14,12 +15,18 @@ import { RolesGuard } from 'src/middleware/guards/roles.guard';
 export class UsersActionsController {
   constructor(private readonly UsersActionsService: UsersActionsService) {}
 
+  @Post('/register')
+  register(@Body() payload) {
+    return this.UsersActionsService.registerUser(payload);
+  }
+
   @Patch('/assign-manager')
   @SetMetadata('roles', ['theboss'])
   assignManager(@Body() payload) {
     return this.UsersActionsService.assignUserToManager(
       payload.userToAssign,
       payload.managerToAssignUser,
+      payload.statusUser,
     );
   }
 }

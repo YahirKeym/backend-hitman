@@ -5,7 +5,12 @@ import { usersEntity } from '../../entities';
 export class UsersActionsService {
   private usersEntity = usersEntity.UsersEntityInit();
 
-  async assignUserToManager(userToAsign: number, managerToAsignUser: number) {
+  async assignUserToManager(
+    userToAsign: number,
+    managerToAsignUser: number,
+    statusUser: number,
+  ) {
+    console.log('VALUES', userToAsign, managerToAsignUser, statusUser);
     try {
       const userToAssign = await this.usersEntity.findOne({
         where: {
@@ -23,6 +28,7 @@ export class UsersActionsService {
       await this.usersEntity.update(
         {
           assigned: managerToAsignUser,
+          active: statusUser,
         },
         {
           where: {
@@ -35,5 +41,15 @@ export class UsersActionsService {
       throw new BadRequestException(notifyError.message);
     }
     return { status: 'userAsiggned' };
+  }
+
+  async registerUser(payloadUser) {
+    try {
+      const newUser = await this.usersEntity.create(payloadUser);
+      return newUser;
+    } catch (notifyError) {
+      console.log('ERROR REGISTER USER => ', notifyError);
+      throw new BadRequestException(notifyError.message);
+    }
   }
 }

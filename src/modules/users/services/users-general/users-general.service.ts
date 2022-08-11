@@ -81,4 +81,90 @@ export class UsersGeneralService {
     }
     return response;
   }
+
+  async getAllHitmans(userId: number) {
+    try {
+      const managerData = await this.usersEntity.findOne({
+        where: {
+          id: userId,
+        },
+      });
+      const users = await this.usersEntity.findAll({
+        where: {
+          role: 3,
+          assigned: userId,
+        },
+      });
+      const newUsersData = [];
+      for await (const user of users) {
+        newUsersData.push({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          active: user.active,
+          assigned_name: managerData.name,
+          assign: user.assigned,
+          id: user.id,
+        });
+      }
+      return newUsersData;
+    } catch (notifyError) {
+      console.log('ERROR GET ALL HITMANS => ', notifyError);
+      throw new BadRequestException(notifyError.message);
+    }
+  }
+
+  async getAllUsers() {
+    try {
+      const users = await this.usersEntity.findAll({
+        where: {
+          role: [2, 3],
+        },
+      });
+      const dataManagers = [];
+      const newUsersData = [];
+      for await (const user of users) {
+        const getDataManager = dataManagers.find((dataManager) => {
+          if (dataManager.id === user.assigned) {
+            return dataManager;
+          } else {
+            return null;
+          }
+        });
+        if (getDataManager) {
+          newUsersData.push({
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            active: user.active,
+            assign_name: getDataManager.name,
+            assign: user.assigned,
+            id: user.id,
+          });
+        } else {
+          const userAssign = await this.usersEntity.findOne({
+            where: {
+              id: user.assigned,
+            },
+          });
+          if (userAssign) {
+            dataManagers.push(userAssign);
+            newUsersData.push({
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              active: user.active,
+              assign_name: userAssign.name,
+              assign: user.assigned,
+              id: user.id,
+            });
+          }
+        }
+      }
+      return newUsersData;
+    } catch (notifyError) {
+      console.log('ERROR GET ALL USERS => ', notifyError);
+      throw new BadRequestException(notifyError.message);
+    }
+  }
 }

@@ -1,11 +1,13 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { usersEntity } from 'src/modules/users/entities';
 import { hitsEntity } from '../../entities';
 import { IHit } from '../../types/hits.types';
-
+import { connectionSequalize as sequelize } from 'src/database/connection/sequelize';
+import { QueryTypes } from 'sequelize';
 @Injectable()
 export class HitsGeneralService {
   private hitsEntity = hitsEntity.HitsEntityInit();
-
+  private usersEntity = usersEntity.UsersEntityInit();
   async createHit(hitPayload: IHit) {
     try {
       await this.hitsEntity.create({
@@ -31,7 +33,7 @@ export class HitsGeneralService {
         },
         {
           where: {
-            id_hit: hitPayload.idHit,
+            id: hitPayload.idHit,
           },
         },
       );
@@ -97,6 +99,24 @@ export class HitsGeneralService {
       return hits;
     } catch (notifyError) {
       console.log('ERROR GET HITS FOR USER => ', notifyError);
+      throw new BadRequestException(notifyError.message);
+    }
+  }
+
+  async getAllHits() {
+    try {
+      const hits = await sequelize().query(
+        `
+        SELECT hits.*, users.name as assigned_name, created.name as created_name,
+        status_hits.name_status as status, status_hits.id as status_id FROM hits
+        INNER JOIN users ON hits.user_assigned = users.id
+        INNER JOIN users created ON hits.user_creator = created.id
+        INNER JOIN status_hits ON hits.status = status_hits.id`,
+        { type: QueryTypes.SELECT },
+      );
+      return hits;
+    } catch (notifyError) {
+      console.log('ERROR GET ALL HITS => ', notifyError);
       throw new BadRequestException(notifyError.message);
     }
   }

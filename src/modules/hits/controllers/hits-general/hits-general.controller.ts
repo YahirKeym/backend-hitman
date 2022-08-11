@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -41,5 +42,11 @@ export class HitsGeneralController {
       payload.hitToAssign,
       payload.hitmanToAssignHit,
     );
+  }
+
+  @Get('/hits/all')
+  @SetMetadata('roles', ['theboss', 'manager'])
+  getAllHits() {
+    return this.HitsGeneralService.getAllHits();
   }
 }
