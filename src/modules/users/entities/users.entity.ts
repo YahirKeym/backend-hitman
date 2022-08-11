@@ -9,6 +9,7 @@ export class UsersEntity extends Model<any, any> {
   declare password: string;
   declare active: number;
   declare assigned: number;
+  declare token: string;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -31,6 +32,7 @@ export const UsersEntityInit = () => {
         type: DataTypes.NUMBER,
         defaultValue: 1,
       },
+      token: DataTypes.STRING,
     },
     {
       sequelize: connectionSequalize(),
